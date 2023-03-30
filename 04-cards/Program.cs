@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,166 +10,183 @@ namespace _04_cards
     {
         static void Main(string[] args)
         {
-            const int TakeCard = 1;
-            const int TakeLotCard = 2;
-            const int OutputInformation = 3;
-            const int ExitProgram = 4;
-            bool isProgramWork = true;
+            const int CommandTakeCard = 1;
+            const int CommandTakeLotCard = 2;
+            const int CommandOutputInformation = 3;
+            const int CommandExitProgram = 4;
+            bool isProgramWork = true;            
+            Player player = new Player();
             Deck deck = new Deck();
-
+            
             while (isProgramWork)
             {
                 Console.Clear();
-                deck.ShowPlayerDeck();
-                Console.WriteLine($"{TakeCard}) Вбрать случайную карту.\n{TakeLotCard}) Взять несколько карт.\n{OutputInformation}) Вывод оставшихся карт в колоде.\n{ExitProgram}) Выход");                
+                player.ShowCards();
+                Console.WriteLine($"{CommandTakeCard}) Вбрать случайную карту.\n{CommandTakeLotCard}) Взять несколько карт.\n{CommandOutputInformation}) Вывод оставшихся карт в колоде.\n{CommandExitProgram}) Выход");                
                 Console.Write("Выбирите команду: ");
                 int.TryParse(Console.ReadLine(), out int userInput);                
 
                 switch (userInput)
                 {
-                    case TakeCard:
-                        deck.TakeRandomCard();
+                    case CommandTakeCard:
+                        TakeCard(deck, player);
                         break;
-                    case TakeLotCard:
-                        deck.TakeQuantityCards();
+
+                    case CommandTakeLotCard:
+                        TakeLotCard(deck, player);
                         break;
-                    case OutputInformation:
-                        deck.ShowDeck();
+
+                    case CommandOutputInformation:
+                        deck.ShowInfo();
                         break;
-                    case ExitProgram:
+
+                    case CommandExitProgram:
                         isProgramWork = false;
                         break;
-                }
+                }                
+            }            
+        }
+        
+        static void TakeCard(Deck deck, Player player)
+        {
+            Card card = deck.GetCard();
+            deck.DeleteCard(card);
+            player.TakeRandomCard(card);
+        }
+
+        static void TakeLotCard(Deck deck, Player player)
+        {
+            Console.Write("Введите число карт: ");
+            int.TryParse(Console.ReadLine(), out int userInput);
+
+            for (int i = 0; i < userInput; i++)
+            {
+                TakeCard(deck, player);
             }
-        }               
+        }
     }
 
-    class Deck
-    {        
-        List<Card> deck = new List<Card>();
-        List<Card> playerDeck = new List<Card>();
-        Random random = new Random();
+    class Player
+    {
+        private List<Card> _cards = new List<Card>();            
 
-        public Deck()
+        public void TakeRandomCard(Card card)
         {
-            deck.Add(new Card(NameCard.Шесть, Suit.Вини));
-            deck.Add(new Card(NameCard.Семь, Suit.Вини));
-            deck.Add(new Card(NameCard.Восемь, Suit.Вини));
-            deck.Add(new Card(NameCard.Девять, Suit.Вини));
-            deck.Add(new Card(NameCard.Десять, Suit.Черви));
-            deck.Add(new Card(NameCard.Валет, Suit.Черви));
-            deck.Add(new Card(NameCard.Дама, Suit.Черви));
-            deck.Add(new Card(NameCard.Король, Suit.Черви));
-            deck.Add(new Card(NameCard.Туз, Suit.Черви));
-            deck.Add(new Card(NameCard.Шесть, Suit.Буби));
-            deck.Add(new Card(NameCard.Семь, Suit.Буби));
-            deck.Add(new Card(NameCard.Восемь, Suit.Буби));
-            deck.Add(new Card(NameCard.Девять, Suit.Буби));
-            deck.Add(new Card(NameCard.Десять, Suit.Крести));
-            deck.Add(new Card(NameCard.Валет, Suit.Крести));
-            deck.Add(new Card(NameCard.Дама, Suit.Крести));
-            deck.Add(new Card(NameCard.Король, Suit.Крести));
-            deck.Add(new Card(NameCard.Туз, Suit.Крести));
+            if (card != null)
+            {
+                _cards.Add(card);
+                Console.Write("Вы взяли: ");
+                _cards.Last().ShowCard();
+                Console.Write("\nДля продолжения нажмите любую кнопку:");
+                Console.ReadKey();
+            }
         }        
 
-        public void ShowDeck()
-        {
-            if (deck.Count > 0)
-            {
-                foreach (Card cards in deck)
-                {
-                    cards.ShowCard();
-                }
-            }
-
-            else
-            {
-                Console.WriteLine("Карты закончились");
-            }
-            Console.ReadKey();
-        }
-
-        public void TakeRandomCard()
-        {
-            if (deck.Count > 0)
-            {
-                int numberCard = random.Next(0, deck.Count);
-                playerDeck.Add(deck[numberCard]);
-                deck.RemoveAt(numberCard);
-                Console.Write("Вы взяли: ");
-                playerDeck.Last().ShowCard();
-                Console.Write("\nДля продолжения нажмите любую кнопку:");    
-            }
-
-            else
-            {
-                Console.WriteLine("Карты закончились.Для продолжения нажмите любую кнопку:");
-            }
-            Console.ReadKey();
-        }
-
-        public void TakeQuantityCards()
-        {
-            if (deck.Count >= 0)
-            {
-                Console.Write("Введите число карт: ");
-                int.TryParse(Console.ReadLine(), out int userInput); 
-                
-                for (int i = 0; i < userInput; i++)
-                {
-                    TakeRandomCard();
-                }
-            }
-        }
-
-        public void ShowPlayerDeck()
+        public void ShowCards()
         {
             Console.SetCursorPosition(0, 20);
             Console.WriteLine("Карты игрока: ");
 
-            foreach (Card cards in playerDeck)
+            foreach (Card cards in _cards)
             {
                 cards.ShowCard();
-            }            
-            Console.SetCursorPosition(0,0);
+            }
+
+            Console.SetCursorPosition(0, 0);
         }
+    }
+
+    class Deck
+    {        
+        private List<Card> _cards = new List<Card>();
+        private Random _random = new Random();
+
+        public Deck()
+        {
+            _cards.Add(new Card(Name.Six, Suit.Spades));
+            _cards.Add(new Card(Name.Seven, Suit.Spades));
+            _cards.Add(new Card(Name.Eight, Suit.Spades));
+            _cards.Add(new Card(Name.Nine, Suit.Spades));
+            _cards.Add(new Card(Name.Ten, Suit.Hearts));
+            _cards.Add(new Card(Name.Jack, Suit.Hearts));
+            _cards.Add(new Card(Name.Queen, Suit.Hearts));
+            _cards.Add(new Card(Name.King, Suit.Hearts));
+            _cards.Add(new Card(Name.Ace, Suit.Hearts));
+            _cards.Add(new Card(Name.Six, Suit.Diamonds));
+            _cards.Add(new Card(Name.Seven, Suit.Diamonds));
+            _cards.Add(new Card(Name.Eight, Suit.Diamonds));
+            _cards.Add(new Card(Name.Nine, Suit.Diamonds));
+            _cards.Add(new Card(Name.Ten, Suit.Clubs));
+            _cards.Add(new Card(Name.Jack, Suit.Clubs));
+            _cards.Add(new Card(Name.Queen, Suit.Clubs));
+            _cards.Add(new Card(Name.King, Suit.Clubs));
+            _cards.Add(new Card(Name.Ace, Suit.Clubs));
+        }   
+
+        public void DeleteCard(Card card)
+        {
+            _cards.Remove(card);
+        }
+
+        public Card GetCard()
+        {
+            int numberCard = _random.Next(0, _cards.Count);
+            return _cards[numberCard];
+        }
+
+        public void ShowInfo()
+        {
+            if (_cards.Count > 0)
+            {
+                foreach (Card cards in _cards)
+                {
+                    cards.ShowCard();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Карты закончились");
+            }
+
+            Console.ReadKey();
+        }                
     }
 
     class Card
     {        
-        public NameCard NameCard { get; private set; }
+        public Name Name { get; private set; }
         public Suit Suit { get; private set; }
 
-        public Card(NameCard name, Suit suit)
+        public Card(Name name, Suit suit)
         {
-            NameCard = name;
+            Name = name;
             Suit = suit;
         }
 
         public void ShowCard()
         {
-            Console.WriteLine($"{NameCard} - {Suit}");
+            Console.WriteLine($"{Name} - {Suit}");
         }
     }
 
-    enum NameCard
+    enum Name
     {
-        Шесть,  
-        Семь,
-        Восемь,
-        Девять,
-        Десять,
-        Валет,
-        Дама,
-        Король,
-        Туз
+        Six,  
+        Seven,
+        Eight,
+        Nine,
+        Ten,
+        Jack,
+        Queen,
+        King,
+        Ace
     }
 
     enum Suit
     {
-        Вини,
-        Буби,
-        Крести,
-        Черви,
+        Spades,
+        Diamonds,
+        Clubs,
+        Hearts,
     }
 }
