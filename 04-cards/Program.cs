@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace _04_cards
 {
@@ -30,11 +28,11 @@ namespace _04_cards
                 switch (userInput)
                 {
                     case CommandTakeCard:
-                        croupier.TakeCard(deck, player);
+                        croupier.TransferCard(deck, player);
                         break;
 
                     case CommandTakeLotCard:
-                        croupier.TakeLotCard(deck, player);
+                        croupier.TransferLotCard(deck, player);
                         break;
 
                     case CommandOutputInformation:
@@ -51,20 +49,28 @@ namespace _04_cards
 
     class Croupier
     {              
-        public void TakeCard(Deck deck, Player player)
+        public void TransferCard(Deck deck, Player player)
         {
             Card card = deck.GetCard();
             player.TakeCard(card);
         }
 
-        public void TakeLotCard(Deck deck, Player player)
+        public void TransferLotCard(Deck deck, Player player)
         {
             Console.Write("Введите число карт: ");
             int.TryParse(Console.ReadLine(), out int userInput);
 
-            for (int i = 0; i < userInput; i++)
+            if (player.VerifyUserInput(userInput))
             {
-                TakeCard(deck, player);
+                for (int i = 0; i < userInput; i++)
+                {
+                    TransferCard(deck, player);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Не верный ввод");
+                Console.ReadKey();
             }
         }
     }
@@ -79,7 +85,7 @@ namespace _04_cards
             {
                 _cards.Add(card);
                 Console.Write("Вы взяли: ");
-                _cards.Last().ShowName();
+                _cards.Last().Show();
                 Console.Write("\nДля продолжения нажмите любую кнопку:");
                 Console.ReadKey();
             }
@@ -92,10 +98,22 @@ namespace _04_cards
 
             foreach (Card cards in _cards)
             {
-                cards.ShowName();
+                cards.Show();
             }
 
             Console.SetCursorPosition(0, 0);
+        }
+
+        public bool VerifyUserInput(int userInput)
+        {
+            if (userInput <= _cards.Count)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
@@ -106,10 +124,35 @@ namespace _04_cards
 
         public Deck()
         {
-            Cards();
-        } 
-        
-        private void Cards()
+            FillDeck();
+        }                
+
+        public Card GetCard()
+        {
+            int numberCard = _random.Next(0, _cards.Count);
+            Card card = _cards[numberCard];
+            _cards.Remove(card);
+            return card;            
+        }
+
+        public void ShowInfo()
+        {
+            if (_cards.Count > 0)
+            {
+                foreach (Card cards in _cards)
+                {
+                    cards.Show();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Карты закончились");
+            }
+
+            Console.ReadKey();
+        }
+
+        private void FillDeck()
         {
             _cards.Add(new Card(Name.Six, Suit.Spades));
             _cards.Add(new Card(Name.Seven, Suit.Spades));
@@ -130,31 +173,6 @@ namespace _04_cards
             _cards.Add(new Card(Name.King, Suit.Clubs));
             _cards.Add(new Card(Name.Ace, Suit.Clubs));
         }
-
-        public Card GetCard()
-        {
-            int numberCard = _random.Next(0, _cards.Count);
-            Card card = _cards[numberCard];
-            _cards.Remove(card);
-            return card;            
-        }
-
-        public void ShowInfo()
-        {
-            if (_cards.Count > 0)
-            {
-                foreach (Card cards in _cards)
-                {
-                    cards.ShowName();
-                }
-            }
-            else
-            {
-                Console.WriteLine("Карты закончились");
-            }
-
-            Console.ReadKey();
-        }                
     }
 
     class Card
@@ -168,7 +186,7 @@ namespace _04_cards
         public Name Name { get; private set; }
         public Suit Suit { get; private set; }
 
-        public void ShowName()
+        public void Show()
         {
             Console.WriteLine($"{Name} - {Suit}");
         }
