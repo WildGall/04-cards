@@ -8,31 +8,40 @@ namespace _04_cards
     {
         static void Main(string[] args)
         {
-            const int CommandTakeCard = 1;
-            const int CommandTakeLotCard = 2;
-            const int CommandOutputInformation = 3;
-            const int CommandExitProgram = 4;
+            Croupier croupier = new Croupier();
+            croupier.Work();
+        }         
+    }
+
+    class Croupier
+    {     
+        public void Work()
+        {
+            const string CommandTakeCard = "1";
+            const string CommandTakeLotCard = "2";
+            const string CommandOutputInformation = "3";
+            const string CommandExitProgram = "4";
+
             bool isProgramWork = true;
             Player player = new Player();
-            Deck deck = new Deck();
-            Croupier croupier = new Croupier();
+            Deck deck = new Deck();           
 
             while (isProgramWork)
             {
                 Console.Clear();
                 player.ShowCards();
-                Console.WriteLine($"{CommandTakeCard}) Вбрать случайную карту.\n{CommandTakeLotCard}) Взять несколько карт.\n{CommandOutputInformation}) Вывод оставшихся карт в колоде.\n{CommandExitProgram}) Выход");                
+                Console.WriteLine($"{CommandTakeCard}) Вбрать случайную карту.\n{CommandTakeLotCard}) Взять несколько карт.\n{CommandOutputInformation}) Вывод оставшихся карт в колоде.\n{CommandExitProgram}) Выход");
                 Console.Write("Выбирите команду: ");
-                int.TryParse(Console.ReadLine(), out int userInput);                
+                string userInput = Console.ReadLine();
 
                 switch (userInput)
                 {
                     case CommandTakeCard:
-                        croupier.TransferCard(deck, player);
+                        TransferCard(deck, player);
                         break;
 
                     case CommandTakeLotCard:
-                        croupier.TransferLotCard(deck, player);
+                        TransferLotCard(deck, player);
                         break;
 
                     case CommandOutputInformation:
@@ -42,15 +51,12 @@ namespace _04_cards
                     case CommandExitProgram:
                         isProgramWork = false;
                         break;
-                }                
-            }            
-        }         
-    }
+                }
+            }
+        }
 
-    class Croupier
-    {              
         public void TransferCard(Deck deck, Player player)
-        {
+        {            
             Card card = deck.GetCard();
             player.TakeCard(card);
         }
@@ -60,7 +66,7 @@ namespace _04_cards
             Console.Write("Введите число карт: ");
             int.TryParse(Console.ReadLine(), out int userInput);
 
-            if (player.VerifyUserInput(userInput))
+            if (deck.VerifyUserInput(userInput))
             {
                 for (int i = 0; i < userInput; i++)
                 {
@@ -102,19 +108,7 @@ namespace _04_cards
             }
 
             Console.SetCursorPosition(0, 0);
-        }
-
-        public bool VerifyUserInput(int userInput)
-        {
-            if (userInput <= _cards.Count)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        }        
     }
 
     class Deck
@@ -129,10 +123,17 @@ namespace _04_cards
 
         public Card GetCard()
         {
-            int numberCard = _random.Next(0, _cards.Count);
-            Card card = _cards[numberCard];
-            _cards.Remove(card);
-            return card;            
+            if (_cards.Count != 0)
+            {
+                int numberCard = _random.Next(0, _cards.Count);
+                Card card = _cards[numberCard];
+                _cards.Remove(card);
+                return card;
+            }
+            else
+            {
+                return null;
+            }                       
         }
 
         public void ShowInfo()
@@ -150,6 +151,18 @@ namespace _04_cards
             }
 
             Console.ReadKey();
+        }
+
+        public bool VerifyUserInput(int userInput)
+        {
+            if (_cards.Count >= userInput)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void FillDeck()
