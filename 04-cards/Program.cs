@@ -55,13 +55,13 @@ namespace _04_cards
             }
         }
 
-        public void TransferCard(Deck deck, Player player)
+        private void TransferCard(Deck deck, Player player)
         {            
             Card card = deck.GetCard();
             player.TakeCard(card);
         }
 
-        public void TransferLotCard(Deck deck, Player player)
+        private void TransferLotCard(Deck deck, Player player)
         {
             Console.Write("Введите число карт: ");
             int.TryParse(Console.ReadLine(), out int userInput);
@@ -118,7 +118,7 @@ namespace _04_cards
 
         public Deck()
         {
-            FillDeck();
+            Fill();
         }                
 
         public Card GetCard()
@@ -165,7 +165,7 @@ namespace _04_cards
             }
         }
 
-        private void FillDeck()
+        private void Fill()
         {
             _cards.Add(new Card(Name.Six, Suit.Spades));
             _cards.Add(new Card(Name.Seven, Suit.Spades));
